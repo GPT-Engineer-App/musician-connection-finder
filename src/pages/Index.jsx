@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Button, Flex, FormControl, FormLabel, Heading, Input, Select, Stack, Text, Link, useToast } from "@chakra-ui/react";
+import { Box, Button, Flex, FormControl, FormLabel, Heading, Input, Select, Stack, Switch, Text, Link, useToast } from "@chakra-ui/react";
 import { FaPlus, FaSearch } from "react-icons/fa";
 
 const instruments = ["Guitare", "Basse", "Batterie", "Clavier", "Chant"];
@@ -93,7 +93,7 @@ const Index = ({ profiles, addProfile }) => {
 
       {!loggedIn ? (
         <Flex justify="center">
-          <Box width="300px">
+          <Box as="form" width="300px" onSubmit={handleLogin}>
             <FormControl id="email" mb={4}>
               <FormLabel>Email</FormLabel>
               <Input type="email" />
@@ -102,7 +102,7 @@ const Index = ({ profiles, addProfile }) => {
               <FormLabel>Mot de passe</FormLabel>
               <Input type="password" />
             </FormControl>
-            <Button colorScheme="blue" onClick={handleLogin}>
+            <Button type="submit" colorScheme="blue">
               Se connecter
             </Button>
           </Box>
@@ -123,7 +123,7 @@ const Index = ({ profiles, addProfile }) => {
             </FormControl>
             <FormControl id="instruments">
               <FormLabel>Instruments</FormLabel>
-              <Select name="instruments" multiple value={newProfile.instruments} onChange={handleProfileChange}>
+              <Select name="instruments" isMulti value={newProfile.instruments} onChange={handleProfileChange}>
                 {instruments.map((instrument) => (
                   <option key={instrument} value={instrument}>
                     {instrument}
@@ -133,7 +133,7 @@ const Index = ({ profiles, addProfile }) => {
             </FormControl>
             <FormControl id="musicStyles">
               <FormLabel>Styles de musique</FormLabel>
-              <Select name="musicStyles" multiple value={newProfile.musicStyles} onChange={handleProfileChange}>
+              <Select name="musicStyles" isMulti value={newProfile.musicStyles} onChange={handleProfileChange}>
                 {musicStyles.map((style) => (
                   <option key={style} value={style}>
                     {style}
@@ -156,9 +156,9 @@ const Index = ({ profiles, addProfile }) => {
               <FormLabel>Localisation</FormLabel>
               <Input name="location" value={newProfile.location} onChange={handleProfileChange} />
             </FormControl>
-            <FormControl id="availability">
-              <FormLabel>Disponibilité</FormLabel>
-              <Input name="availability" value={newProfile.availability} onChange={handleProfileChange} />
+            <FormControl id="availability" display="flex" alignItems="center">
+              <FormLabel mb={0}>Je suis disponible</FormLabel>
+              <Switch name="availability" isChecked={newProfile.availability} onChange={(e) => setNewProfile({ ...newProfile, availability: e.target.checked })} />
             </FormControl>
             <FormControl id="email">
               <FormLabel>Email</FormLabel>
