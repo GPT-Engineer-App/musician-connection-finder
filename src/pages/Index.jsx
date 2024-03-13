@@ -26,8 +26,8 @@ const Index = ({ profiles, addProfile }) => {
   const toast = useToast();
 
   const handleLogin = () => {
-    // TODO: Implement login logic
     setLoggedIn(true);
+    navigate("/");
   };
 
   const handleProfileChange = (e) => {
