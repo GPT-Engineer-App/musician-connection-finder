@@ -5,9 +5,9 @@ import { FaPlus, FaSearch } from "react-icons/fa";
 const instruments = ["Guitare", "Basse", "Batterie", "Clavier", "Chant"];
 const musicStyles = ["Rock", "Jazz", "Pop", "Metal", "Classique"];
 
-const Index = () => {
+const Index = ({ profiles, addProfile }) => {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [profile, setProfile] = useState({
+  const [newProfile, setNewProfile] = useState({
     firstName: "",
     lastName: "",
     instruments: [],
@@ -18,7 +18,11 @@ const Index = () => {
     email: "",
     phone: "",
   });
+  const [searchInstrument, setSearchInstrument] = useState("");
+  const [searchMusicStyle, setSearchMusicStyle] = useState("");
+  const [searchLocation, setSearchLocation] = useState("");
   const [results, setResults] = useState([]);
+
   const toast = useToast();
 
   const handleLogin = () => {
@@ -27,43 +31,52 @@ const Index = () => {
   };
 
   const handleProfileChange = (e) => {
-    setProfile({ ...profile, [e.target.name]: e.target.value });
+    setNewProfile({ ...newProfile, [e.target.name]: e.target.value });
   };
 
   const handleSocialLinkAdd = () => {
-    setProfile({ ...profile, socialLinks: [...profile.socialLinks, ""] });
+    setNewProfile({ ...newProfile, socialLinks: [...newProfile.socialLinks, ""] });
   };
 
   const handleSocialLinkChange = (index, value) => {
-    const updatedLinks = [...profile.socialLinks];
+    const updatedLinks = [...newProfile.socialLinks];
     updatedLinks[index] = value;
-    setProfile({ ...profile, socialLinks: updatedLinks });
+    setNewProfile({ ...newProfile, socialLinks: updatedLinks });
   };
 
-  const handleSearch = () => {
-    // TODO: Implement search logic
-    // Simulating search results for demo purposes
-    const demoResults = [
-      {
-        firstName: "John",
-        lastName: "Doe",
-        instruments: ["Guitare", "Chant"],
-        musicStyles: ["Rock", "Pop"],
-        location: "Paris",
-      },
-      {
-        firstName: "Jane",
-        lastName: "Smith",
-        instruments: ["Basse", "Clavier"],
-        musicStyles: ["Jazz", "Classique"],
-        location: "Lyon",
-      },
-    ];
-    setResults(demoResults);
+  const handleSearch = (instrument, musicStyle, location) => {
+    const formattedProfiles = profiles.map((profile) => ({
+      ...profile,
+      instruments: typeof profile.instruments === "string" ? profile.instruments.split(", ") : profile.instruments,
+      musicStyles: typeof profile.musicStyles === "string" ? profile.musicStyles.split(", ") : profile.musicStyles,
+    }));
+    const filteredProfiles = formattedProfiles.filter((profile) => {
+      const instrumentMatch = instrument ? profile.instruments.includes(instrument) : true;
+      const styleMatch = musicStyle ? profile.musicStyles.includes(musicStyle) : true;
+      const locationMatch = location ? profile.location === location : true;
+      return instrumentMatch && styleMatch && locationMatch;
+    });
+    setResults(filteredProfiles);
   };
 
   const handleProfileSubmit = () => {
-    // TODO: Implement profile submission logic
+    const formattedProfile = {
+      ...newProfile,
+      instruments: newProfile.instruments ? newProfile.instruments.split(", ") : [],
+      musicStyles: newProfile.musicStyles ? newProfile.musicStyles.split(", ") : [],
+    };
+    addProfile(newProfile);
+    setNewProfile({
+      firstName: "",
+      lastName: "",
+      instruments: [],
+      musicStyles: [],
+      socialLinks: [],
+      location: "",
+      availability: "",
+      email: "",
+      phone: "",
+    });
     toast({
       title: "Profil enregistré",
       status: "success",
@@ -102,15 +115,15 @@ const Index = () => {
           <Stack spacing={4} mb={8}>
             <FormControl id="firstName">
               <FormLabel>Prénom</FormLabel>
-              <Input name="firstName" value={profile.firstName} onChange={handleProfileChange} />
+              <Input name="firstName" value={newProfile.firstName} onChange={handleProfileChange} />
             </FormControl>
             <FormControl id="lastName">
               <FormLabel>Nom</FormLabel>
-              <Input name="lastName" value={profile.lastName} onChange={handleProfileChange} />
+              <Input name="lastName" value={newProfile.lastName} onChange={handleProfileChange} />
             </FormControl>
             <FormControl id="instruments">
               <FormLabel>Instruments</FormLabel>
-              <Select name="instruments" multiple value={profile.instruments} onChange={handleProfileChange}>
+              <Select name="instruments" multiple value={newProfile.instruments} onChange={handleProfileChange}>
                 {instruments.map((instrument) => (
                   <option key={instrument} value={instrument}>
                     {instrument}
@@ -120,7 +133,7 @@ const Index = () => {
             </FormControl>
             <FormControl id="musicStyles">
               <FormLabel>Styles de musique</FormLabel>
-              <Select name="musicStyles" multiple value={profile.musicStyles} onChange={handleProfileChange}>
+              <Select name="musicStyles" multiple value={newProfile.musicStyles} onChange={handleProfileChange}>
                 {musicStyles.map((style) => (
                   <option key={style} value={style}>
                     {style}
@@ -130,7 +143,7 @@ const Index = () => {
             </FormControl>
             <FormControl id="socialLinks">
               <FormLabel>Liens réseaux sociaux</FormLabel>
-              {profile.socialLinks.map((link, index) => (
+              {newProfile.socialLinks.map((link, index) => (
                 <Flex key={index} mb={2}>
                   <Input value={link} onChange={(e) => handleSocialLinkChange(index, e.target.value)} />
                 </Flex>
@@ -141,19 +154,19 @@ const Index = () => {
             </FormControl>
             <FormControl id="location">
               <FormLabel>Localisation</FormLabel>
-              <Input name="location" value={profile.location} onChange={handleProfileChange} />
+              <Input name="location" value={newProfile.location} onChange={handleProfileChange} />
             </FormControl>
             <FormControl id="availability">
               <FormLabel>Disponibilité</FormLabel>
-              <Input name="availability" value={profile.availability} onChange={handleProfileChange} />
+              <Input name="availability" value={newProfile.availability} onChange={handleProfileChange} />
             </FormControl>
             <FormControl id="email">
               <FormLabel>Email</FormLabel>
-              <Input name="email" value={profile.email} onChange={handleProfileChange} />
+              <Input name="email" value={newProfile.email} onChange={handleProfileChange} />
             </FormControl>
             <FormControl id="phone">
               <FormLabel>Téléphone</FormLabel>
-              <Input name="phone" value={profile.phone} onChange={handleProfileChange} />
+              <Input name="phone" value={newProfile.phone} onChange={handleProfileChange} />
             </FormControl>
             <Button colorScheme="blue" onClick={handleProfileSubmit}>
               Enregistrer le profil
@@ -164,22 +177,22 @@ const Index = () => {
             Rechercher des musiciens
           </Heading>
           <Stack direction="row" spacing={4} mb={8}>
-            <Select placeholder="Instrument">
+            <Select placeholder="Instrument" onChange={(e) => setSearchInstrument(e.target.value)}>
               {instruments.map((instrument) => (
                 <option key={instrument} value={instrument}>
                   {instrument}
                 </option>
               ))}
             </Select>
-            <Select placeholder="Style de musique">
+            <Select placeholder="Style de musique" onChange={(e) => setSearchMusicStyle(e.target.value)}>
               {musicStyles.map((style) => (
                 <option key={style} value={style}>
                   {style}
                 </option>
               ))}
             </Select>
-            <Input placeholder="Localisation" />
-            <Button leftIcon={<FaSearch />} colorScheme="blue" onClick={handleSearch}>
+            <Input placeholder="Localisation" onChange={(e) => setSearchLocation(e.target.value)} />
+            <Button leftIcon={<FaSearch />} colorScheme="blue" onClick={() => handleSearch(searchInstrument, searchMusicStyle, searchLocation)}>
               Rechercher
             </Button>
           </Stack>
